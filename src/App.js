@@ -1,10 +1,12 @@
 import React from 'react';
-import PageBuilder from './PageBuilder';
+import PageBuilder from './components/PageBuilder';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.bundle.min";
 
 function App() {
   return (
     <div>
-      <h1>Drag and Drop Page Builder</h1>
       <PageBuilder />
     </div>
   );
