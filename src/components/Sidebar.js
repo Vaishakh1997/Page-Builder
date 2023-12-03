@@ -1,24 +1,19 @@
 import React, { useState } from "react";
 import "@trendmicro/react-sidenav/dist/react-sidenav.css";
 import '../assets/css/App.css'
-import SideNav, {
-  Toggle,
-  Nav,
-  NavItem,
-  NavIcon,
-  NavText
-} from "@trendmicro/react-sidenav";
+import SideNav, { NavItem } from "@trendmicro/react-sidenav";
 import dragImage from '../assets/img/grip-vertical.png'
+import ExportButton from "./Export";
+import ImportButton from "./Import";
 
-function Sidebar({ setDraggedItem }) {
-
-  const handleDragStart = (e, type) => {
-    setDraggedItem(type);
-    e.dataTransfer.setData('text/plain', ''); // for Firefox compatibility
-  };
+function Sidebar({ setNewDraggedItem }) {
 
   const [isVisible, setIsVisible] = useState(true)
 
+  const handleDragStart = (e, type) => {
+    setNewDraggedItem(type);
+    e.dataTransfer.setData('text/plain', ''); // for Firefox compatibility
+  };
 
   return (
     <SideNav expanded={isVisible}>
@@ -28,7 +23,7 @@ function Sidebar({ setDraggedItem }) {
         }}
       />
       <SideNav.Nav defaultSelected="">
-      <h4 className="drag-heading">Blocks</h4>
+        <h4 className="drag-heading">Blocks</h4>
 
         <NavItem eventKey="label">
           <div
@@ -61,6 +56,11 @@ function Sidebar({ setDraggedItem }) {
             Button
           </div>
         </NavItem>
+        
+        <h4 className="drag-heading mt-5 mb-0">Export/Import</h4>
+        <ExportButton />
+        <ImportButton />
+
       </SideNav.Nav>
     </SideNav>
   );

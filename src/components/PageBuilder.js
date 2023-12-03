@@ -3,68 +3,92 @@ import Element from './Element';
 import Sidebar from './Sidebar';
 
 function PageBuilder() {
-    const [elements, setElements] = useState(JSON.parse(localStorage.getItem('elements')) || []);
-    const [draggedItem, setDraggedItem] = useState(null);
+  const [elements, setElements] = useState(JSON.parse(localStorage.getItem('elements')) || []);
+  const [newDraggedItem, setNewDraggedItem] = useState(null);
+  const [draggedElementID, setDraggedElementID] = useState(null);
+  const [selectedElementID, setSelectedElemnt] = useState(null);
 
+  useEffect(() => {
+    setElements(elements)
+    // Save data to local storage whenever 'elements' changes
+    localStorage.setItem('elements', JSON.stringify(elements));
+  }, [elements]);
 
-    useEffect(() => {
-        setElements(elements)
-        // Save data to local storage whenever 'elements' changes
-        localStorage.setItem('elements', JSON.stringify(elements));
-    }, [elements]);
+  const handleDrop = (e, id) => {
+    e.preventDefault();
+    const xPos = e.clientX;
+    const yPos = e.clientY;
 
+    if (newDraggedItem) {
+      const newElement = {
+        id: new Date().getTime(),
+        type: newDraggedItem,
+        xPos,
+        yPos,
+        itemName: 'Enter Name',
+        fontSize: 15,
+        fontWeight: 400
+      };
 
+      const updatedElements = [...elements, newElement];
 
-    const handleDrop = (e) => {
-        e.preventDefault();
-        const x = e.clientX;
-        const y = e.clientY;
+      // Save updated elements to local storage
+      setElements(updatedElements);
+      localStorage.setItem('elements', JSON.stringify(updatedElements));
+    }
+    else {
+      handleUpdateElementOnDrag(draggedElementID, xPos, yPos,)
+    }
 
-        if (draggedItem) {
-            const newElement = {
-                id: new Date().getTime(),
-                type: draggedItem,
-                x,
-                y,
-                configuration: 'Enter Name',
-            };
+    setNewDraggedItem(null);
+  };
 
-            const updatedElements = [...elements, newElement];
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
 
-            // Save updated elements to local storage
-            setElements(updatedElements);
-            localStorage.setItem('elements', JSON.stringify(updatedElements));
-        }
-
-        setDraggedItem(null);
-    };
-
-    const handleDragOver = (e) => {
-        e.preventDefault();
-    };
-
-    const handleUpdateElement = (elementId, newConfiguration, editedX, editedY) => {
-        const updatedElements = elements.map((element) =>
-            element.id === elementId ? { ...element, configuration: newConfiguration, x: parseInt(editedX), y: parseInt(editedY) } : element
-        );
-
-        // Save updated elements to local storage
-        setElements(updatedElements);
-        localStorage.setItem('elements', JSON.stringify(updatedElements));
-    };
-
-    return (
-        <div
-            style={{ border: '1px solid #ccc', minHeight: '100vh', position: 'relative', background:'aliceBlue' }}
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-        >
-            {elements.map((element) => (
-                <Element key={element.id} onUpdate={handleUpdateElement} {...element} />
-            ))}
-            <Sidebar setDraggedItem={setDraggedItem} />
-        </div>
+  const handleUpdateElementOnDrag = (elementID, editedX, editedY) => {
+    const updatedElements = elements?.map((element) =>
+      element.id === elementID ? { ...element, xPos: parseInt(editedX), yPos: parseInt(editedY) } : element
     );
+
+    // Save updated elements to local storage
+    setElements(updatedElements);
+    localStorage.setItem('elements', JSON.stringify(updatedElements));
+  };
+
+  const handleUpdateElementOnModal = (elementID, updatedName, editedX, editedY, editedFontSize, editedFontWeight) => {
+    const updatedElements = elements?.map((element) =>
+      element.id === elementID ? { ...element, itemName: updatedName, xPos: parseInt(editedX), yPos: parseInt(editedY), fontSize: editedFontSize, fontWeight: editedFontWeight } : element
+    );
+
+    // Save updated elements to local storage
+    setElements(updatedElements);
+    localStorage.setItem('elements', JSON.stringify(updatedElements));
+  };
+
+  const onDeleteElement = (e) => {
+    const updatedElements = elements?.filter(element => element.id !== selectedElementID);
+
+    // Save updated elements to local storage
+    setElements(updatedElements);
+    localStorage.setItem('elements', JSON.stringify(updatedElements));
+  }
+  return (
+    <div
+      style={{ border: '1px solid #ccc', minHeight: '100vh', position: 'relative', background: 'aliceBlue' }}
+      onDrop={(e) => {
+        handleDrop(e)
+      }}
+      onDragOver={handleDragOver}
+
+    >
+      {elements && elements?.map((element) => (
+        <Element key={element.id} id={element.id} onUpdate={handleUpdateElementOnModal} isSelected={selectedElementID === element.id} onDragStart={setDraggedElementID} onClick={setSelectedElemnt} onDeleteElement={onDeleteElement} {...element} />
+      ))}
+      <Sidebar setNewDraggedItem={setNewDraggedItem} />
+    </div>
+  );
 }
 
 export default PageBuilder;

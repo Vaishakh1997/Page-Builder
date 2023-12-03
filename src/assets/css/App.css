@@ -81,3 +81,11 @@ code {
   width: 12px;
   margin-right: 8px;
 }
+.inherit-style{
+  font-size: inherit !important;
+  font-weight: inherit !important;
+}
+.export-btn{
+  margin: 15px;
+  /* padding: 0 25px; */
+}
