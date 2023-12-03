@@ -52,14 +52,12 @@ code {
   }
 }
 
-.sidenav---sidenav---_2tBP {
+.css-1wvake5 {
+  height: 100vh;
+}
+.css-dip3t8 {
   background: #00485f !important;
 }
-
-.sidenav---sidenav---_2tBP>div {
-  background: transparent !important;
-}
-
 .page-builder {
   border: 1px solid #ccc;
   min-height: 100vh;
@@ -76,7 +74,7 @@ code {
 .drag-item {
   cursor: move;
   margin: 15px;
-  padding: 0 25px;
+  padding: 10px 25px;
   background: white;
   border-radius: 8px;
   color: #282c34;
