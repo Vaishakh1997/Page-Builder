@@ -1,50 +1,41 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Modal } from 'react-bootstrap';
 
-function Element({ id, type, xPos, yPos, itemName, fontSize, fontWeight, isSelected, onUpdate, onDragStart, onClick, onDeleteElement }) {
+function Element({ id, type, xPos, yPos, itemName, fontSize, fontWeight, isSelected, onUpdate, onDragStart, onClickedElement, onDeleteElement }) {
   const [modal, setModal] = useState(false);
   const [editedName, setEditedName] = useState(itemName);
-  const [editedX, setEditedX] = useState(xPos);
-  const [editedY, setEditedY] = useState(yPos);
-  const [editedFontSize, setEditedFontSize] = useState(fontSize);
-  const [editedFontWeight, setEditedFontWeight] = useState(fontWeight);
-
-  console.log("selectedddddd", isSelected)
+  const [updatedX, setUpdatedX] = useState(xPos);
+  const [updatedY, setUpdatedY] = useState(yPos);
+  const [updatedFontSize, setUpdatedFontSize] = useState(fontSize);
+  const [updatedFontWeight, setUpdatedFontWeight] = useState(fontWeight);
 
   useEffect(() => {
     const handleKeyPress = (event) => {
       if (isSelected) {
         if (event.key === 'Enter') {
-          openModal()
+          setModal(true) // Open Edit modal on Enter Click
         }
         else if ((event.metaKey || event.ctrlKey) && event.key === 'Backspace') {
-          onDeleteElement()
+          onDeleteElement() // Delete specific element on cmd+delete (ctrl+delete on windows)
         }
       }
     };
 
-    // Attach the event listener when the component mounts
-    document.addEventListener('keydown', handleKeyPress);
+    document.addEventListener('keydown', handleKeyPress); // Attach the event listener when the component mounts
 
-    // Clean up the event listener when the component unmounts
     return () => {
-      document.removeEventListener('keydown', handleKeyPress);
+      document.removeEventListener('keydown', handleKeyPress); // Clean up the event listener when the component unmounts
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSelected]); // Empty dependency array ensures that the effect runs once when the component mounts
+  }, [isSelected]);
 
-
-  const openModal = () => {
-    setModal(true)
-  }
   const handleUpdate = () => {
-    onUpdate(id, editedName, editedX, editedY, editedFontSize, editedFontWeight);
+    // collect all the updated values user entered and pass it to onUpdate props
+    onUpdate(id, editedName, updatedX, updatedY, updatedFontSize, updatedFontWeight);
     setModal(false)
   };
 
-
-
-  const getFormData = () => {
+  const GetSidebarBlocks = () => {
     switch (type) {
       case 'Button':
         return <Button className='inherit-style' variant='primary'>{editedName}</Button>
@@ -56,26 +47,30 @@ function Element({ id, type, xPos, yPos, itemName, fontSize, fontWeight, isSelec
         break;
     }
   }
+
   return (
     <>
       <div
         style={{
-          border: isSelected ? "1px solid red" : "",
           position: 'absolute',
-          left: xPos,
-          top: yPos,
           padding: '10px',
           cursor: 'pointer',
+          border: isSelected ? "1px solid red" : "",
+          left: xPos,
+          top: yPos,
           fontSize: `${fontSize}px`,
           fontWeight: `${fontWeight}`
         }}
         id={id}
         draggable
         onDragStart={(e) => onDragStart(id)}
-        onClick={(e) => onClick(id)}
+        onClick={(e) => onClickedElement(id)}
       >
-        {getFormData()}
+        {/* get sidebar blocks based on dragged element type from the function */}
+        <GetSidebarBlocks />
+
       </div>
+
       <Modal show={modal} onHide={() => setModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Edit</Modal.Title>
@@ -92,30 +87,30 @@ function Element({ id, type, xPos, yPos, itemName, fontSize, fontWeight, isSelec
               />
             </div>
             <div className='mb-3'>
-              <label>X</label>
+              <label>X Cordinate</label>
               <input
                 className='form-control mt-1'
                 type="number"
-                value={editedX}
-                onChange={(e) => setEditedX(e.target.value)}
+                value={updatedX}
+                onChange={(e) => setUpdatedX(e.target.value)}
               />
             </div>
             <div className='mb-3'>
-              <label>Y</label>
+              <label>Y Cordinate</label>
               <input
                 className='form-control mt-1'
                 type="number"
-                value={editedY}
-                onChange={(e) => setEditedY(e.target.value)}
+                value={updatedY}
+                onChange={(e) => setUpdatedY(e.target.value)}
               />
             </div>
             <div className='mb-3'>
-              <label>Font Size (px)</label>
+              <label>Font Size</label>
               <input
                 type="number"
                 className='form-control mt-1'
-                value={editedFontSize}
-                onChange={(e) => setEditedFontSize(e.target.value)}
+                value={updatedFontSize}
+                onChange={(e) => setUpdatedFontSize(e.target.value)}
               />
             </div>
             <div className='mb-4'>
@@ -123,8 +118,8 @@ function Element({ id, type, xPos, yPos, itemName, fontSize, fontWeight, isSelec
               <input
                 type="number"
                 className='form-control mt-1'
-                value={editedFontWeight}
-                onChange={(e) => setEditedFontWeight(e.target.value)}
+                value={updatedFontWeight}
+                onChange={(e) => setUpdatedFontWeight(e.target.value)}
               />
             </div>
             <Button className='inherit-style' variant='primary' onClick={handleUpdate}>Save Changes</Button>

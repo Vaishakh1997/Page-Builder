@@ -3,10 +3,10 @@ import Element from './Element';
 import Sidebar from './Sidebar';
 
 function PageBuilder() {
-  const [elements, setElements] = useState(JSON.parse(localStorage.getItem('elements')) || []);
-  const [newDraggedItem, setNewDraggedItem] = useState(null);
+  const [elements, setElements] = useState(JSON.parse(localStorage.getItem('elements')) || []); //get elements from localstorage if presents
+  const [newDraggedItemType, setNewDraggedItemType] = useState(null);
   const [draggedElementID, setDraggedElementID] = useState(null);
-  const [selectedElementID, setSelectedElemnt] = useState(null);
+  const [selectedElementID, setSelectedElementID] = useState(null);
 
   useEffect(() => {
     setElements(elements)
@@ -14,15 +14,15 @@ function PageBuilder() {
     localStorage.setItem('elements', JSON.stringify(elements));
   }, [elements]);
 
-  const handleDrop = (e, id) => {
+  const handleDroppedElement = (e, id) => {
     e.preventDefault();
-    const xPos = e.clientX;
-    const yPos = e.clientY;
+    const xPos = e.clientX; // accessing horizontal cordinate of dragged element
+    const yPos = e.clientY; // accessing vertical cordinate of dragged element
 
-    if (newDraggedItem) {
+    if (newDraggedItemType) { // if executes for newly  dragged elements from the sidebar
       const newElement = {
         id: new Date().getTime(),
-        type: newDraggedItem,
+        type: newDraggedItemType, // type of newly dragged elements it can be label, input or button
         xPos,
         yPos,
         itemName: 'Enter Name',
@@ -36,20 +36,20 @@ function PageBuilder() {
       setElements(updatedElements);
       localStorage.setItem('elements', JSON.stringify(updatedElements));
     }
-    else {
-      handleUpdateElementOnDrag(draggedElementID, xPos, yPos,)
+    else { // executes for dragging existing elements
+      updateExistingElementOnDrag(draggedElementID, xPos, yPos,)
     }
-
-    setNewDraggedItem(null);
+    setNewDraggedItemType(null);
   };
 
   const handleDragOver = (e) => {
     e.preventDefault();
   };
 
-  const handleUpdateElementOnDrag = (elementID, editedX, editedY) => {
+  const updateExistingElementOnDrag = (elementID, updatedX, updatedY) => {
+    // find user selected elements using id and update the data received by the function
     const updatedElements = elements?.map((element) =>
-      element.id === elementID ? { ...element, xPos: parseInt(editedX), yPos: parseInt(editedY) } : element
+      element.id === elementID ? { ...element, xPos: parseInt(updatedX), yPos: parseInt(updatedY) } : element
     );
 
     // Save updated elements to local storage
@@ -57,9 +57,10 @@ function PageBuilder() {
     localStorage.setItem('elements', JSON.stringify(updatedElements));
   };
 
-  const handleUpdateElementOnModal = (elementID, updatedName, editedX, editedY, editedFontSize, editedFontWeight) => {
+  const handleUpdateElementOnModal = (elementID, updatedName, updatedX, updatedY, editedFontSize, editedFontWeight) => {
+    // find user selected elements using id and update the data received by the function
     const updatedElements = elements?.map((element) =>
-      element.id === elementID ? { ...element, itemName: updatedName, xPos: parseInt(editedX), yPos: parseInt(editedY), fontSize: editedFontSize, fontWeight: editedFontWeight } : element
+      element.id === elementID ? { ...element, itemName: updatedName, xPos: parseInt(updatedX), yPos: parseInt(updatedY), fontSize: editedFontSize, fontWeight: editedFontWeight } : element
     );
 
     // Save updated elements to local storage
@@ -68,6 +69,7 @@ function PageBuilder() {
   };
 
   const onDeleteElement = (e) => {
+    //delete the element from the elements data using selectedElementID
     const updatedElements = elements?.filter(element => element.id !== selectedElementID);
 
     // Save updated elements to local storage
@@ -76,17 +78,23 @@ function PageBuilder() {
   }
   return (
     <div
-      style={{ border: '1px solid #ccc', minHeight: '100vh', position: 'relative', background: 'aliceBlue' }}
-      onDrop={(e) => {
-        handleDrop(e)
-      }}
+      className='page-builder'
+      onDrop={(e) => handleDroppedElement(e)}
       onDragOver={handleDragOver}
-
     >
       {elements && elements?.map((element) => (
-        <Element key={element.id} id={element.id} onUpdate={handleUpdateElementOnModal} isSelected={selectedElementID === element.id} onDragStart={setDraggedElementID} onClick={setSelectedElemnt} onDeleteElement={onDeleteElement} {...element} />
+        <Element
+          {...element}
+          key={element.id}
+          id={element.id}
+          onUpdate={handleUpdateElementOnModal}
+          isSelected={selectedElementID === element.id}
+          onDragStart={setDraggedElementID}
+          onClickedElement={setSelectedElementID}
+          onDeleteElement={onDeleteElement}
+        />
       ))}
-      <Sidebar setNewDraggedItem={setNewDraggedItem} />
+      <Sidebar setNewDraggedItemType={setNewDraggedItemType} />
     </div>
   );
 }
