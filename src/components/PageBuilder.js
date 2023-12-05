@@ -7,6 +7,7 @@ function PageBuilder() {
   const [newDraggedItemType, setNewDraggedItemType] = useState(null);
   const [draggedElementID, setDraggedElementID] = useState(null);
   const [selectedElementID, setSelectedElementID] = useState(null);
+  const [deletedElement, setDeletedElement] = useState([]);
 
   useEffect(() => {
     setElements(elements)
@@ -68,6 +69,20 @@ function PageBuilder() {
     localStorage.setItem('elements', JSON.stringify(updatedElements));
   };
 
+  const undoElement = () => {
+    setDeletedElement(elements.pop())
+    setElements(elements)
+    localStorage.setItem('elements', JSON.stringify(elements));
+  }
+
+  const redoElement = () => {
+    let elementsCopy = [...elements]
+    elementsCopy.push(deletedElement)
+    // console.log(newElements);
+    setElements(elementsCopy)
+    localStorage.setItem('elements', JSON.stringify(elements));
+  }
+
   const onDeleteElement = (e) => {
     //delete the element from the elements data using selectedElementID
     const updatedElements = elements?.filter(element => element.id !== selectedElementID);
@@ -94,7 +109,7 @@ function PageBuilder() {
           onDeleteElement={onDeleteElement}
         />
       ))}
-      <Sidebar setNewDraggedItemType={setNewDraggedItemType} />
+      <Sidebar setNewDraggedItemType={setNewDraggedItemType} undoElement={undoElement} redoElement={redoElement} />
     </div>
   );
 }
